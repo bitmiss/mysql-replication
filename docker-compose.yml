@@ -1,0 +1,54 @@
+version: '3.7'
+
+services:
+    master:
+        image: mysql:5.7
+        container_name: mysql-master
+        ports:
+            - "127.0.0.1:3308:3306"
+        volumes:
+            - ./data1/mysql:/var/lib/mysql:cached
+            - ./config/m.cnf:/etc/mysql/conf.d/docker.cnf:cached
+            - ./sql:/var/sql
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+        networks:
+            - m-network
+        restart: always
+
+    slave1:
+        image: mysql:5.7
+        container_name: mysql-slave1
+        ports:
+            - "127.0.0.1:3309:3306"
+        volumes:
+            - ./data2/mysql:/var/lib/mysql:cached
+            - ./config/s1.cnf:/etc/mysql/conf.d/docker.cnf:cached
+            - ./sql:/var/sql
+        links: 
+            - master
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+        networks:
+            - m-network
+        restart: always
+
+    slave2:
+        image: mysql:5.7
+        container_name: mysql-slave2
+        ports:
+            - "127.0.0.1:3310:3306"
+        volumes:
+            - ./data3/mysql:/var/lib/mysql:cached
+            - ./config/s2.cnf:/etc/mysql/conf.d/docker.cnf:cached
+            - ./sql:/var/sql
+        links: 
+            - master
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+        networks:
+            - m-network
+        restart: always
+networks:
+    m-network:
+        driver: bridge
